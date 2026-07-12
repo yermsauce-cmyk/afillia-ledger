@@ -1,0 +1,182 @@
+{
+  "version": "2026-07-12.1",
+  "last_updated": "2026-07-12",
+  "source_url": "https://www.tiktok.com/community-guidelines",
+  "notes": "Initial extraction from TikTok Community Guidelines. Edit this file and push to GitHub to update rules — Streamlit auto-redeploys in ~30 seconds.",
+  "size_limits": {
+    "max_mb": 287,
+    "warn_mb": 72,
+    "max_caption_chars": 2200,
+    "warn_caption_chars": 1500
+  },
+  "content_rules": {
+    "real_person": {
+      "question": "Does this video show a **real, identifiable person**?",
+      "options": [
+        "No — fully synthetic/animated",
+        "Yes — but with consent",
+        "Yes — no consent"
+      ],
+      "help": "Deepfakes of real people without consent are banned.",
+      "outcomes": {
+        "Yes — no consent": {
+          "severity": "issue",
+          "rule": "Non-consensual deepfake",
+          "detail": "Real-person deepfakes without consent are banned. This video will be removed and your account may be permanently suspended.",
+          "fix": "Remove the video. Only use synthetic faces or get written consent from the person depicted."
+        },
+        "Yes — but with consent": {
+          "severity": "warning",
+          "rule": "Real person depicted",
+          "detail": "TikTok may still flag this. Keep evidence of consent ready in case of an appeal.",
+          "fix": "Have written consent on file. Consider adding a disclaimer in the caption."
+        },
+        "No — fully synthetic/animated": {
+          "severity": "pass",
+          "message": "Fully synthetic content — no real-person deepfake risk"
+        }
+      }
+    },
+    "nudity": {
+      "question": "Does this video contain **nudity or explicit sexual content**?",
+      "options": [
+        "No",
+        "Suggestive only (tease aesthetic)",
+        "Yes — partial nudity",
+        "Yes — explicit"
+      ],
+      "outcomes": {
+        "Yes — explicit": {
+          "severity": "issue",
+          "rule": "Explicit sexual content",
+          "detail": "Explicit nudity or sexual acts are banned. This will be removed immediately.",
+          "fix": "Remove or heavily edit the video. Suggestive tease aesthetic is OK; explicit is not."
+        },
+        "Yes — partial nudity": {
+          "severity": "issue",
+          "rule": "Partial nudity",
+          "detail": "Partial nudity is restricted and likely to be removed or age-restricted (which kills reach).",
+          "fix": "Crop, blur, or reshoot. Keep the tease aesthetic without actual skin exposure."
+        },
+        "Suggestive only (tease aesthetic)": {
+          "severity": "warning",
+          "rule": "Suggestive content",
+          "detail": "Suggestive content is allowed but held to a higher standard. Avoid lingering shots of cleavage/bottoms or simulated acts.",
+          "fix": "Keep transitions fast, focus on outfit/dance/aesthetic rather than body parts.",
+          "pass_message": "Suggestive (not explicit) — within TikTok's tease line"
+        },
+        "No": {
+          "severity": "pass",
+          "message": "No nudity or explicit content"
+        }
+      }
+    },
+    "violence": {
+      "question": "Does this video contain **violence, gore, or weapons**?",
+      "options": [
+        "No",
+        "Mild (fitness, dance)",
+        "Yes"
+      ],
+      "outcomes": {
+        "Yes": {
+          "severity": "issue",
+          "rule": "Violence or weapons",
+          "detail": "Violent content or weapons are banned or heavily restricted.",
+          "fix": "Remove violent elements or reshoot without weapons/injury."
+        },
+        "Mild (fitness, dance)": {
+          "severity": "pass",
+          "message": "Mild physical activity — within guidelines"
+        },
+        "No": {
+          "severity": "pass",
+          "message": "No violence or weapons"
+        }
+      }
+    }
+  },
+  "audio_ip_rules": {
+    "music_source": {
+      "question": "Where is the **music/audio** from?",
+      "options": [
+        "TikTok's licensed library",
+        "My own original audio",
+        "Third-party (not licensed)"
+      ],
+      "help": "Using unlicensed music = copyright strike.",
+      "outcomes": {
+        "Third-party (not licensed)": {
+          "severity": "issue",
+          "rule": "Unlicensed music",
+          "detail": "Using music you don't have rights to = automatic copyright strike. The video will be muted or removed, and repeat strikes can ban your account.",
+          "fix": "Use TikTok's in-app music library, or upload your own original audio."
+        },
+        "My own original audio": {
+          "severity": "pass",
+          "message": "Original audio — no copyright risk"
+        },
+        "TikTok's licensed library": {
+          "severity": "pass",
+          "message": "Using TikTok's licensed music library"
+        }
+      }
+    },
+    "uses_brand": {
+      "question": "Does this video promote a **brand, product, or paid partnership**?",
+      "options": [
+        "No",
+        "Yes — disclosed with Branded Content toggle",
+        "Yes — not disclosed"
+      ],
+      "outcomes": {
+        "Yes — not disclosed": {
+          "severity": "issue",
+          "rule": "Undisclosed paid partnership",
+          "detail": "Failing to disclose paid partnerships violates FTC and TikTok rules. Video will be removed and you may lose monetization.",
+          "fix": "Turn on TikTok's 'Branded Content' toggle before posting, or add #ad / #sponsored in the caption."
+        },
+        "Yes — disclosed with Branded Content toggle": {
+          "severity": "pass",
+          "message": "Paid partnership properly disclosed"
+        },
+        "No": {
+          "severity": "pass",
+          "message": "No commercial content — no disclosure needed"
+        }
+      }
+    },
+    "mentions_adult_platform": {
+      "question": "Does the caption mention **OnlyFans, Fansly, or similar**?",
+      "options": [
+        "No",
+        "Soft tease only",
+        "Direct link or explicit mention"
+      ],
+      "outcomes": {
+        "Direct link or explicit mention": {
+          "severity": "issue",
+          "rule": "Direct promotion of adult platform",
+          "detail": "Directly promoting OnlyFans/Fansly in TikTok posts is against guidelines. The video will likely be removed and reach limited.",
+          "fix": "Use soft teasers like 'exclusive content on my page' without naming the platform or linking directly."
+        },
+        "Soft tease only": {
+          "severity": "warning",
+          "rule": "Adult platform tease",
+          "detail": "Soft teasers are tolerated but can limit reach. Don't do this on every post.",
+          "fix": "Max 1x/week. Vary the tease language. Never put a direct link in the caption."
+        },
+        "No": {
+          "severity": "pass",
+          "message": "No adult platform promotion"
+        }
+      }
+    }
+  },
+  "caption_rules": {
+    "banned_terms": ["deepfake", "real person", "revenge", "minor", "underage", "non-consensual"],
+    "risky_terms": ["nsfw", "onlyfans", "fansly", "leaked"],
+    "required_hashtags": ["#afilla"],
+    "ai_label_required": true
+  }
+}
