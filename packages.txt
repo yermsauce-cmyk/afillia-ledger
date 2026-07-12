@@ -1,0 +1,2 @@
+# System packages required by Streamlit Community Cloud
+# (kept minimal — only what the app actually needs)

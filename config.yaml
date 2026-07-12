@@ -1,0 +1,111 @@
+# Afillia.ledger — central configuration
+# All paths are relative to this file's directory.
+
+project:
+  name: "Afillia TikTok Policy + Compliance Agent"
+  account: "@afillia"
+  location: "Miami, Florida"
+
+paths:
+  prompts: "./prompts"
+  workflows: "./workflows"
+  scripts: "./scripts"
+  logs: "./logs"
+  raw_scrape_dir: "./logs/raw"
+  summaries_dir: "./logs/summaries"
+
+# Free local LLM via Ollama (no API key, no paywall).
+# Install: https://ollama.com  →  ollama pull qwen3-coder:latest
+llm:
+  provider: "ollama"            # ollama | groq_free | anthropic_free | none
+  base_url: "http://localhost:11434"
+  model: "qwen3-coder:latest"
+  temperature: 0.2
+  timeout_seconds: 300
+  # Free cloud fallbacks (only used if Ollama is unavailable)
+  groq_free:
+    base_url: "https://api.groq.com/openai/v1/chat/completions"
+    model: "llama-3.1-8b-instant"
+    api_key_env: "GROQ_API_KEY"
+  anthropic_free:
+    base_url: "https://api.anthropic.com/v1/messages"
+    model: "claude-3-5-haiku-20241022"
+    api_key_env: "ANTHROPIC_API_KEY"
+
+# Sources to scrape for TikTok policy changes.
+sources:
+  guidelines:
+    - url: "https://www.tiktok.com/community-guidelines"
+      label: "TikTok Community Guidelines"
+    - url: "https://www.tiktok.com/legal/terms-of-service"
+      label: "TikTok Terms of Service"
+    - url: "https://support.tiktok.com/en/using-tiktok"
+      label: "TikTok Help Center"
+    - url: "https://newsroom.tiktok.com/en-us"
+      label: "TikTok Newsroom"
+  reddit:
+    - "https://www.reddit.com/r/TikTok/.rss"
+    - "https://www.reddit.com/r/TikTokHelp/.rss"
+    - "https://www.reddit.com/r/ArtificialIntelligence/.rss"
+    - "https://www.reddit.com/r/SyntheticCreators/.rss"
+  rss:
+    - "https://news.google.com/rss/search?q=TikTok+policy+OR+guidelines+OR+ban"
+    - "https://news.google.com/rss/search?q=TikTok+AI+disclosure+OR+synthetic+content"
+
+# Keyword alerts — match against scraped + summarized text.
+alerts:
+  keywords:
+    - "AI disclosure"
+    - "synthetic content"
+    - "shadowban"
+    - "ban"
+    - "monetization"
+    - "automation"
+    - "deepfake"
+  risk_levels:
+    high: ["ban", "deepfake", "non-consensual", "underage"]
+    medium: ["shadowban", "monetization change", "automation limit"]
+
+# Pre-post compliance rules.
+compliance:
+  required_hashtags: ["#Afilla"]
+  recommended_hashtags:
+    - "#SyntheticSeduction"
+    - "#AIMuse"
+    - "#MiamiVibes"
+  banned_terms:
+    - "deepfake"
+    - "real person"
+    - "revenge"
+    - "minor"
+    - "underage"
+    - "non-consensual"
+  risky_terms:
+    - "nsfw"
+    - "onlyfans"
+    - "fanvue"
+    - "leaked"
+  max_caption_length: 2200
+  require_ai_label: true
+
+# Alerting — all free.
+alerting:
+  email:
+    enabled: false
+    smtp_host: "smtp.gmail.com"
+    smtp_port: 587
+    from: ""
+    to: []
+    username: ""
+    # Use a Gmail App Password (free): https://myaccount.google.com/apppasswords
+    app_password_env: "AFILLIA_SMTP_APP_PASSWORD"
+  desktop:
+    enabled: true   # macOS notification via osascript
+  webhook:
+    enabled: false
+    url: ""
+
+# Schedule — used by scripts/scheduler.py
+schedule:
+  scrape_cron: "0 9 * * *"      # daily 09:00
+  compliance_check_on_post: true

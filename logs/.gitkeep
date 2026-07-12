@@ -1,0 +1,9 @@
+# Logs
+
+This folder holds runtime output from the agent:
+
+- `compliance_checks.log` — one JSON line per pre-post check (written by `scripts/compliance_check.py`)
+- `raw_scrape_<date>.txt` — raw scraped policy text (written by `scripts/scrape_tiktok_guidelines.py`)
+- `policy_summaries/` — summarized policy digests (create as needed)
+
+Add `.gitkeep` or commit selectively — these files change frequently.

@@ -1,0 +1,9 @@
+{
+  "followers_target": 10000,
+  "weekly_follower_growth_target": 200,
+  "views_per_post_target": 5000,
+  "save_rate_target": 0.03,
+  "share_rate_target": 0.01,
+  "fanvue_conversion_target": 0.02,
+  "posts_per_week_target": 4
+}

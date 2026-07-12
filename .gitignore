@@ -1,0 +1,25 @@
+# Secrets
+.env
+*.key
+*.pem
+
+# Logs (keep .gitkeep)
+logs/*.log
+logs/raw_scrape_*.txt
+logs/policy_summaries/*.json
+!logs/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# macOS
+.DS_Store
+
+# Editor
+.vscode/
+.idea/
+*.swp

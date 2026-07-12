@@ -1,0 +1,59 @@
+{
+  "name": "Afillia TikTok Policy Monitor (Make.com)",
+  "flow": [
+    {
+      "id": 1,
+      "module": "schedule",
+      "label": "Daily 09:00",
+      "parameters": {"interval": 24, "unit": "hours"}
+    },
+    {
+      "id": 2,
+      "module": "http",
+      "label": "Fetch TikTok Guidelines",
+      "parameters": {"url": "https://www.tiktok.com/community-guidelines"}
+    },
+    {
+      "id": 3,
+      "module": "http",
+      "label": "Fetch Reddit r/TikTok RSS",
+      "parameters": {"url": "https://www.reddit.com/r/TikTok/.rss"}
+    },
+    {
+      "id": 4,
+      "module": "text-aggregator",
+      "label": "Combine Sources",
+      "parameters": {"separator": "\\n\\n=====\\n"}
+    },
+    {
+      "id": 5,
+      "module": "http",
+      "label": "Ollama Summarize (FREE)",
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:11434/api/generate",
+        "body": {
+          "model": "qwen3-coder:latest",
+          "prompt": "Summarize TikTok policy changes for @afillia synthetic creator:\\n\\n{{4.text}}",
+          "stream": false
+        }
+      }
+    },
+    {
+      "id": 6,
+      "module": "filter",
+      "label": "High Risk Only",
+      "parameters": {"condition": "{{5.response}} contains 'ban' OR {{5.response}} contains 'deepfake'"}
+    },
+    {
+      "id": 7,
+      "module": "email",
+      "label": "Send Alert Email",
+      "parameters": {
+        "to": "{{env.AFILLIA_ALERT_EMAIL}}",
+        "subject": "[HIGH] TikTok policy change",
+        "body": "{{5.response}}"
+      }
+    }
+  ]
+}

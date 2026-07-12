@@ -1,0 +1,126 @@
+{
+  "name": "TikTok Policy Monitor + Compliance (Afillia)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {"interval": [{"field": "hours", "hoursInterval": 24}]},
+        "type": "scheduleTrigger"
+      },
+      "name": "Daily 09:00 UTC",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://www.tiktok.com/community-guidelines",
+        "options": {"response": {"response": {"responseFormat": "text"}}}
+      },
+      "name": "Scrape TikTok Guidelines",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [460, 200]
+    },
+    {
+      "parameters": {
+        "url": "https://www.reddit.com/r/TikTok/.rss",
+        "options": {"response": {"responseFormat": "text"}}
+      },
+      "name": "Reddit r/TikTok RSS",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [460, 360]
+    },
+    {
+      "parameters": {
+        "url": "https://www.reddit.com/r/TikTokHelp/.rss",
+        "options": {"response": {"responseFormat": "text"}}
+      },
+      "name": "Reddit r/TikTokHelp RSS",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [460, 520]
+    },
+    {
+      "parameters": {
+        "functionCode": "const items = [\n  $input.first().json,\n  $input.all()[1]?.json,\n  $input.all()[2]?.json\n].filter(Boolean);\nconst combined = items.map(i => `\\n\\n===== ${i.url || 'source'} =====\\n${i.data || ''}`).join('');\nreturn [{ json: { combined } }];"
+      },
+      "name": "Combine Sources",
+      "type": "n8n-nodes-base.function",
+      "position": [680, 360]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:11434/api/generate",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {"name": "model", "value": "qwen3-coder:latest"},
+            {"name": "prompt", "value": "={{$node[\"Load Prompt\"].json.prompt}}\\n\\nSources:\\n{{$json.combined}}\\n\\nDate: {{$now}}"},
+            {"name": "stream", "value": "false"}
+          ]
+        },
+        "options": {"timeout": 120000}
+      },
+      "name": "Ollama Summarize (FREE)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [900, 360]
+    },
+    {
+      "parameters": {
+        "functionCode": "const text = ($json.response || '').toLowerCase();\nconst keywords = ['ban','deepfake','shadowban','ai disclosure','monetization'];\nconst hits = keywords.filter(k => text.includes(k));\nconst level = hits.some(k => ['ban','deepfake'].includes(k)) ? 'high' : (hits.length ? 'medium' : 'low');\nreturn [{ json: { summary: $json.response, level, hits } }];"
+      },
+      "name": "Classify Risk",
+      "type": "n8n-nodes-base.function",
+      "position": [1120, 360]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {"value1": "={{$json.level}}", "operation": "equal", "value2": "high"}
+          ]
+        }
+      },
+      "name": "High Risk?",
+      "type": "n8n-nodes-base.if",
+      "position": [1340, 280]
+    },
+    {
+      "parameters": {
+        "fromEmail": "alerts@afillia.local",
+        "toEmail": "={{$env.AFILLIA_ALERT_EMAIL}}",
+        "subject": "=[HIGH] TikTok policy change detected",
+        "text": "={{$json.summary}}"
+      },
+      "name": "Email Alert",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [1560, 200]
+    },
+    {
+      "parameters": {
+        "chatId": "={{$env.AFILLIA_TELEGRAM_CHAT_ID}}",
+        "text": "=[{{$json.level}}] TikTok policy digest:\\n\\n{{$json.summary}}"
+      },
+      "name": "Telegram Alert (FREE)",
+      "type": "n8n-nodes-base.telegram",
+      "position": [1560, 400]
+    },
+    {
+      "parameters": {
+        "functionCode": "const fs = require('fs');\nconst path = `/Users/rogerjr./Desktop/Afillia.ledger/logs/summaries/n8n_${new Date().toISOString().slice(0,10)}.md`;\nfs.mkdirSync('/Users/rogerjr./Desktop/Afillia.ledger/logs/summaries', { recursive: true });\nfs.writeFileSync(path, `# n8n digest ${new Date().toISOString()}\\n\\n${$json.summary}\\n`);\nreturn [{ json: { saved: path } }];"
+      },
+      "name": "Save Digest",
+      "type": "n8n-nodes-base.function",
+      "position": [1560, 540]
+    }
+  ],
+  "connections": {
+    "Daily 09:00 UTC": {"main": [[{"node": "Scrape TikTok Guidelines", "type": "main", "index": 0}]]},
+    "Scrape TikTok Guidelines": {"main": [[{"node": "Combine Sources", "type": "main", "index": 0}]]},
+    "Reddit r/TikTok RSS": {"main": [[{"node": "Combine Sources", "type": "main", "index": 0}]]},
+    "Reddit r/TikTokHelp RSS": {"main": [[{"node": "Combine Sources", "type": "main", "index": 0}]]},
+    "Combine Sources": {"main": [[{"node": "Ollama Summarize (FREE)", "type": "main", "index": 0}]]},
+    "Ollama Summarize (FREE)": {"main": [[{"node": "Classify Risk", "type": "main", "index": 0}]]},
+    "Classify Risk": {"main": [[{"node": "High Risk?", "type": "main", "index": 0}]]},
+    "High Risk?": {"main": [[{"node": "Email Alert", "type": "main", "index": 0}, {"node": "Telegram Alert (FREE)", "type": "main", "index": 0}, {"node": "Save Digest", "type": "main", "index": 0}]]}
+  },
+  "settings": {"executionOrder": "v1"}
+}
